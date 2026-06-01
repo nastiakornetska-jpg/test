@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam Prep</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Unbounded:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a26;--surface3:#22223a;
+  --accent:#6c63ff;--accent2:#ff6584;--accent3:#43d9ad;
+  --text:#f0f0ff;--muted:#888899;--border:#2a2a3e;
+  --correct:#43d9ad;--wrong:#ff6584;--warn:#ffbe76;
+}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh;overflow-x:hidden}
+h1,h2,h3,.heading{font-family:'Unbounded',cursive}
+
+/* HEADER */
+#header{padding:1.5rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1rem;background:var(--surface)}
+#header h1{font-size:1.1rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+#header .sub{font-size:0.7rem;color:var(--muted);margin-top:2px}
+
+/* MAIN LAYOUT */
+#app{max-width:860px;margin:0 auto;padding:1.5rem}
+
+/* SCREENS */
+.screen{display:none}
+.screen.active{display:block}
+
+/* HOME */
+#home-screen .hero{text-align:center;padding:2.5rem 0 2rem}
+#home-screen .hero h2{font-size:1.8rem;font-weight:800;line-height:1.2;margin-bottom:.75rem}
+#home-screen .hero p{color:var(--muted);font-size:.8rem;line-height:1.7}
+.gradient-text{background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.mode-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.mode-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.mode-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.mode-card .icon{font-size:1.5rem;margin-bottom:.5rem}
+.mode-card h3{font-size:.85rem;font-weight:600;margin-bottom:.25rem;font-family:'Unbounded',cursive}
+.mode-card p{font-size:.7rem;color:var(--muted);line-height:1.6}
+.mode-card .badge{display:inline-block;font-size:.6rem;padding:2px 8px;border-radius:20px;margin-top:.5rem;background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+
+.topics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin-top:1rem}
+.topic-btn{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;cursor:pointer;transition:all .2s;text-align:left}
+.topic-btn:hover{border-color:var(--accent);background:var(--surface2)}
+.topic-btn .t-name{font-size:.75rem;font-weight:500;font-family:'Unbounded',cursive;margin-bottom:.2rem}
+.topic-btn .t-count{font-size:.65rem;color:var(--muted)}
+.topic-btn .t-bar{height:3px;background:var(--surface3);border-radius:2px;margin-top:.5rem;overflow:hidden}
+.topic-btn .t-fill{height:100%;border-radius:2px;background:var(--accent);transition:width .3s}
+.topic-btn .t-fill.has-errors{background:var(--wrong)}
+.topic-btn .t-fill.good{background:var(--correct)}
+
+section h2.section-title{font-size:.85rem;font-weight:600;color:var(--muted);margin-bottom:.75rem;letter-spacing:.08em;text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+
+/* ANALYTICS */
+.analytics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.5rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;text-align:center}
+.stat-card .val{font-size:1.6rem;font-weight:700;font-family:'Unbounded',cursive}
+.stat-card .lbl{font-size:.65rem;color:var(--muted);margin-top:.25rem}
+.stat-card.accent .val{color:var(--accent)}
+.stat-card.success .val{color:var(--correct)}
+.stat-card.danger .val{color:var(--wrong)}
+.stat-card.warn .val{color:var(--warn)}
+
+.topic-analytics{display:flex;flex-direction:column;gap:.5rem}
+.ta-row{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;display:flex;align-items:center;gap:1rem}
+.ta-row .ta-name{font-size:.75rem;font-weight:500;flex:1;font-family:'Unbounded',cursive}
+.ta-row .ta-stats{font-size:.65rem;color:var(--muted);white-space:nowrap}
+.ta-row .ta-bar-wrap{width:120px;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.ta-row .ta-bar-fill{height:100%;border-radius:3px;transition:width .4s}
+.ta-row .needs-work{color:var(--wrong)}
+
+/* QUIZ */
+#quiz-screen .quiz-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.progress-wrap{flex:1;min-width:120px}
+.progress-label{display:flex;justify-content:space-between;font-size:.65rem;color:var(--muted);margin-bottom:.3rem}
+.progress-bar{height:4px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .3s}
+
+.topic-tag{font-size:.65rem;padding:3px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);color:var(--muted)}
+.q-num{font-size:.7rem;color:var(--muted)}
+
+.question-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.75rem;margin-bottom:1rem}
+.question-card .q-text{font-size:.95rem;line-height:1.7;margin-bottom:1.25rem;color:var(--text)}
+.question-card .q-code{font-family:'JetBrains Mono',monospace;background:var(--surface2);padding:.75rem 1rem;border-radius:8px;font-size:.8rem;margin-bottom:1rem;border-left:3px solid var(--accent);color:var(--accent3)}
+
+.answers{display:flex;flex-direction:column;gap:.6rem}
+.answer-btn{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.85rem 1.1rem;cursor:pointer;transition:all .15s;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--text);display:flex;align-items:center;gap:.75rem}
+.answer-btn:hover:not([disabled]){border-color:var(--accent);background:var(--surface3)}
+.answer-btn .ans-letter{width:22px;height:22px;border-radius:6px;background:var(--surface3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;color:var(--muted)}
+.answer-btn.correct{border-color:var(--correct);background:rgba(67,217,173,.08)}
+.answer-btn.correct .ans-letter{background:var(--correct);border-color:var(--correct);color:#000}
+.answer-btn.wrong{border-color:var(--wrong);background:rgba(255,101,132,.08)}
+.answer-btn.wrong .ans-letter{background:var(--wrong);border-color:var(--wrong);color:#fff}
+.answer-btn[disabled]{cursor:default}
+
+.feedback-bar{padding:.85rem 1.1rem;border-radius:10px;font-size:.8rem;margin-top:.5rem;display:none;line-height:1.6}
+.feedback-bar.correct{background:rgba(67,217,173,.1);border:1px solid var(--correct);color:var(--correct)}
+.feedback-bar.wrong{background:rgba(255,101,132,.1);border:1px solid var(--wrong);color:var(--wrong)}
+
+.nav-row{display:flex;gap:.75rem;margin-top:1rem;justify-content:flex-end}
+.btn{padding:.65rem 1.25rem;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.78rem;cursor:pointer;transition:all .15s}
+.btn:hover{background:var(--surface3);border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+.btn.primary:hover{background:#7c75ff}
+.btn.danger{background:rgba(255,101,132,.1);border-color:var(--wrong);color:var(--wrong)}
+.btn.danger:hover{background:rgba(255,101,132,.2)}
+
+/* RESULTS */
+#results-screen{text-align:center}
+#results-screen .big-score{font-size:4rem;font-weight:800;font-family:'Unbounded',cursive;margin:1rem 0}
+.result-breakdown{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin:1.5rem 0}
+
+.topic-results{text-align:left;margin-top:1.5rem}
+.tr-item{display:flex;align-items:center;gap: .75rem;padding:.6rem .85rem;background:var(--surface);border-radius:8px;margin-bottom:.4rem;gap:.75rem}
+.tr-item .tr-name{flex:1;font-size:.72rem;font-family:'Unbounded',cursive}
+.tr-item .tr-score{font-size:.7rem;font-weight:500}
+.tr-item .needs-work{color:var(--wrong);font-size:.65rem;padding:2px 7px;background:rgba(255,101,132,.1);border-radius:12px}
+
+/* ANIMATIONS */
+@keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.question-card{animation:slideIn .2s ease}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.loading{animation:pulse 1.5s infinite;color:var(--muted);font-size:.8rem;text-align:center;padding:2rem}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .mode-grid{grid-template-columns:1fr}
+  .analytics-grid{grid-template-columns:repeat(2,1fr)}
+  .result-breakdown{grid-template-columns:1fr 1fr}
+  #app{padding:1rem}
+}
+</style>
+</head>
+<body>
+<div id="header">
+  <div>
+    <h1>// EXAM.PREP</h1>
+    <div class="sub">300 питань · HTML · CSS · JS · Node.js · TypeScript · Angular · React · Networking · Architecture · Libraries</div>
+  </div>
+</div>
+
+<div id="app">
+  <!-- HOME -->
+  <div id="home-screen" class="screen active">
+    <div class="hero">
+      <h2><span class="gradient-text">Підготовка до іспиту</span></h2>
+      <p>300 питань з 10 тем. Відстежуй прогрес, тренуй слабкі місця.</p>
+    </div>
+
+    <!-- Analytics summary -->
+    <div class="analytics-grid" id="home-stats">
+      <div class="stat-card accent"><div class="val" id="stat-total">0</div><div class="lbl">пройдено</div></div>
+      <div class="stat-card success"><div class="val" id="stat-correct">0%</div><div class="lbl">правильно</div></div>
+      <div class="stat-card danger"><div class="val" id="stat-errors">0</div><div class="lbl">помилок</div></div>
+      <div class="stat-card warn"><div class="val" id="stat-streak">0</div><div class="lbl">серія</div></div>
+    </div>
+
+    <div class="mode-grid">
+      <div class="mode-card" onclick="startRandom()">
+        <div class="icon">🎲</div>
+        <h3>Рандомний тест</h3>
+        <p>40 випадкових питань з усіх тем</p>
+        <span class="badge">40 питань</span>
+      </div>
+      <div class="mode-card" onclick="showTopicPicker()">
+        <div class="icon">📚</div>
+        <h3>За темами</h3>
+        <p>Вибери конкретну тему для вивчення</p>
+        <span class="badge">30 питань/тема</span>
+      </div>
+    </div>
+
+    <div id="topic-picker" style="display:none">
+      <section>
+        <h2 class="section-title">Вибір теми</h2>
+        <div class="topics-grid" id="topics-grid"></div>
+      </section>
+    </div>
+
+    <div style="margin-top:1.5rem">
+      <section>
+        <h2 class="section-title">Аналіз прогресу</h2>
+        <div class="topic-analytics" id="topic-analytics"></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-screen" class="screen">
+    <div class="quiz-header">
+      <div class="progress-wrap">
+        <div class="progress-label"><span id="q-progress-text">1 / 40</span><span id="q-score-text">✓ 0</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="q-progress-fill" style="width:0%"></div></div>
+      </div>
+      <span class="topic-tag" id="q-topic-tag">HTML</span>
+      <button class="btn danger" onclick="confirmQuit()">✕ вийти</button>
+    </div>
+    <div id="quiz-content"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results-screen" class="screen">
+    <div style="padding:2rem 0">
+      <h2 class="heading" style="font-size:1rem;color:var(--muted);margin-bottom:.5rem">РЕЗУЛЬТАТ</h2>
+      <div class="big-score" id="result-score">—</div>
+      <p id="result-msg" style="color:var(--muted);font-size:.8rem"></p>
+    </div>
+    <div class="result-breakdown">
+      <div class="stat-card success"><div class="val" id="res-correct">0</div><div class="lbl">правильно</div></div>
+      <div class="stat-card danger"><div class="val" id="res-wrong">0</div><div class="lbl">неправильно</div></div>
+      <div class="stat-card accent"><div class="val" id="res-pct">0%</div><div class="lbl">результат</div></div>
+    </div>
+    <div class="topic-results">
+      <h2 class="section-title">По темах</h2>
+      <div id="results-by-topic"></div>
+    </div>
+    <div class="nav-row" style="justify-content:center;margin-top:2rem">
+      <button class="btn primary" onclick="goHome()">← На головну</button>
+      <button class="btn" onclick="retryWrong()">Повторити помилки</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+// HTML 1-30
+{id:1,topic:"HTML",q:"Який тег використовується для створення абзацу?",answers:["<p>","<div>","<span>","<section>"],correct:0},
+{id:2,topic:"HTML",q:"Який тег створює горизонтальну лінію в HTML?",answers:["<hr>","<br>","<line>","<hline>"],correct:0},
+{id:3,topic:"HTML",q:"Який тег реалізує одинарний розрив рядка з переходом на новий рядок?",answers:["<br>","<hr>","<p>","<div>"],correct:0},
+{id:4,topic:"HTML",q:"Який тег відображає текст жирним шрифтом БЕЗ семантичного значення?",answers:["<b>","<strong>","<bold>","<em>"],correct:0},
+{id:5,topic:"HTML",q:"Який HTML тег використовується для виділення тексту курсивом із семантичним значенням?",answers:["<em>","<i>","<italic>","<mark>"],correct:0},
+{id:6,topic:"HTML",q:"Для чого використовуються коментарі в HTML?",answers:["Для пояснення коду без впливу на відображення","Для стилізації елементів","Для виконання JavaScript","Для визначення мета-даних"],correct:0},
+{id:7,topic:"HTML",q:"Що визначає атрибут 'src'?",answers:["Шлях до зовнішнього ресурсу (зображення, скрипт)","Стиль елемента","Унікальний ідентифікатор елемента","Клас елемента"],correct:0},
+{id:8,topic:"HTML",q:"Який тег визначає гіперпосилання?",answers:["<a>","<link>","<href>","<nav>"],correct:0},
+{id:9,topic:"HTML",q:"Який тег використовується для відображення зображення?",answers:["<img>","<image>","<pic>","<src>"],correct:0},
+{id:10,topic:"HTML",q:"Яке призначення елемента <picture>?",answers:["Надає кілька джерел зображення для різних умов","Відображає відео","Замінює тег <img>","Створює SVG-графіку"],correct:0},
+{id:11,topic:"HTML",q:"Який тег використовується для створення таблиці?",answers:["<table>","<grid>","<tr>","<td>"],correct:0},
+{id:12,topic:"HTML",q:"Що робить 'colspan' у таблиці?",answers:["Об'єднує кілька стовпців в одну клітинку","Об'єднує рядки","Встановлює ширину стовпця","Додає рамку до клітинки"],correct:0},
+{id:13,topic:"HTML",q:"Який тег створює невпорядкований список?",answers:["<ul>","<ol>","<li>","<list>"],correct:0},
+{id:14,topic:"HTML",q:"Який з наведених елементів є блочним?",answers:["<div>","<span>","<a>","<strong>"],correct:0},
+{id:15,topic:"HTML",q:"Який з наведених елементів є рядковим (inline)?",answers:["<span>","<div>","<p>","<section>"],correct:0},
+{id:16,topic:"HTML",q:"Який тег використовується для інтеграції та відображення іншої сторінки?",answers:["<iframe>","<embed>","<frame>","<object>"],correct:0},
+{id:17,topic:"HTML",q:"Який текст відображається у вкладці браузера?",answers:["Вміст тегу <title>","Вміст тегу <h1>","Атрибут name тегу <meta>","Вміст тегу <header>"],correct:0},
+{id:18,topic:"HTML",q:"Який файл використовується для відображення іконки сторінки у вкладці браузера?",answers:["favicon.ico","icon.png","logo.gif","tab.png"],correct:0},
+{id:19,topic:"HTML",q:"Який тег використовується для запису CSS в HTML файлі?",answers:["<style>","<css>","<script>","<link>"],correct:0},
+{id:20,topic:"HTML",q:"Який тег використовується для написання JavaScript в HTML?",answers:["<script>","<js>","<code>","<javascript>"],correct:0},
+{id:21,topic:"HTML",q:"Який тег визначає секцію заголовка сторінки?",answers:["<header>","<head>","<nav>","<top>"],correct:0},
+{id:22,topic:"HTML",q:"Який тег відтворює аудіофайл у браузері?",answers:["<audio>","<sound>","<media>","<mp3>"],correct:0},
+{id:23,topic:"HTML",q:"Для чого використовується <svg> в HTML?",answers:["Для векторної графіки, що масштабується","Для відображення відео","Для анімації CSS","Для вставки зображень PNG"],correct:0},
+{id:24,topic:"HTML",q:"Який тег позначає видалений (закреслений) текст?",answers:["<del>","<s>","<strike>","<cross>"],correct:0},
+{id:25,topic:"HTML",q:"Який тег визначає нижній колонтитул вебсторінки?",answers:["<footer>","<bottom>","<end>","<aside>"],correct:0},
+{id:26,topic:"HTML",q:"Який HTML елемент використовується для відображення векторної графіки?",answers:["<svg>","<canvas>","<img>","<figure>"],correct:0},
+{id:27,topic:"HTML",q:"Який атрибут використовується для вказання кодування символів у HTML?",answers:["charset","encoding","lang","type"],correct:0},
+{id:28,topic:"HTML",q:"Який тег визначає підрядковий текст?",answers:["<sub>","<sup>","<small>","<low>"],correct:0},
+{id:29,topic:"HTML",q:"Який тег визначає надрядковий текст?",answers:["<sup>","<sub>","<up>","<high>"],correct:0},
+{id:30,topic:"HTML",q:"Який тег використовується для підсвічування (жовтим фоном) тексту в HTML?",answers:["<mark>","<highlight>","<em>","<bg>"],correct:0},
+// CSS 31-60
+{id:31,topic:"CSS",q:"Яке призначення атрибута class в HTML при використанні з CSS?",answers:["Застосовує стиль до групи елементів","Визначає унікальний ідентифікатор","Задає inline-стиль","Описує тип елемента"],correct:0},
+{id:32,topic:"CSS",q:"Який атрибут HTML застосовується для унікального стилю одного елемента?",answers:["id","class","style","name"],correct:0},
+{id:33,topic:"CSS",q:"Для чого використовується селектор CSS?",answers:["Для вибору HTML-елементів для стилізації","Для виконання JavaScript","Для додавання HTML-елементів","Для маршрутизації в застосунку"],correct:0},
+{id:34,topic:"CSS",q:"Який селектор застосовується до HTML елементів за назвою тега?",answers:["Тег-селектор (p, div, h1)","Класовий (.class)","ID (#id)","Атрибутний ([attr])"],correct:0},
+{id:35,topic:"CSS",q:"Який селектор використовується для стилізації елемента за ID?",answers:["#id","  .class","tag","*"],correct:0},
+{id:36,topic:"CSS",q:"Який символ використовується для класових селекторів у CSS?",answers:[". (крапка)","# (решітка)","@ (at)","$ (долар)"],correct:0},
+{id:37,topic:"CSS",q:"Де можна задати inline стилі CSS?",answers:["У атрибуті style конкретного HTML-елемента","У зовнішньому .css файлі","У тегу <style>","У тегу <link>"],correct:0},
+{id:38,topic:"CSS",q:"Який тег містить внутрішній CSS у HTML файлі?",answers:["<style>","<css>","<script>","<link>"],correct:0},
+{id:39,topic:"CSS",q:"Як додаються коментарі в CSS?",answers:["/* коментар */","// коментар","<!-- коментар -->","# коментар"],correct:0},
+{id:40,topic:"CSS",q:"Яка властивість встановлює фонове зображення в CSS?",answers:["background-image","background-src","bg-image","background"],correct:0},
+{id:41,topic:"CSS",q:"Як зупинити відображення повторення фонового зображення?",answers:["background-repeat: no-repeat","background: none","background-size: cover","background-position: center"],correct:0},
+{id:42,topic:"CSS",q:"Яка CSS властивість змінює колір тексту?",answers:["color","text-color","font-color","foreground"],correct:0},
+{id:43,topic:"CSS",q:"Яка CSS властивість вирівнює текст по центру?",answers:["text-align: center","align: center","justify-content: center","text-center: true"],correct:0},
+{id:44,topic:"CSS",q:"Яка CSS властивість використовується для підкреслення тексту?",answers:["text-decoration: underline","text-style: underline","font-decoration","underline: true"],correct:0},
+{id:45,topic:"CSS",q:"Яка властивість перетворює текст на великі літери?",answers:["text-transform: uppercase","font-case: upper","text-case: caps","letter-case: uppercase"],correct:0},
+{id:46,topic:"CSS",q:"Яка CSS властивість контролює жирність тексту?",answers:["font-weight","font-bold","text-weight","font-style"],correct:0},
+{id:47,topic:"CSS",q:"Яка властивість встановлює розмір тексту?",answers:["font-size","text-size","font-height","size"],correct:0},
+{id:48,topic:"CSS",q:"Яка властивість додає тінь за текстом?",answers:["text-shadow","font-shadow","box-shadow","text-glow"],correct:0},
+{id:49,topic:"CSS",q:"Яка CSS властивість додає тінь навколо блоку елемента?",answers:["box-shadow","element-shadow","div-shadow","block-shadow"],correct:0},
+{id:50,topic:"CSS",q:"Яка властивість задає внутрішній відступ елемента?",answers:["padding","margin","spacing","indent"],correct:0},
+{id:51,topic:"CSS",q:"Яка CSS властивість визначає зовнішній відступ елемента?",answers:["margin","padding","border","gap"],correct:0},
+{id:52,topic:"CSS",q:"Яка властивість встановлює товщину рамки?",answers:["border-width","border-size","border-thickness","outline-width"],correct:0},
+{id:53,topic:"CSS",q:"Яка CSS властивість визначає стиль рамки?",answers:["border-style","border-type","border-design","outline-style"],correct:0},
+{id:54,topic:"CSS",q:"Яке значення задає пунктирний стиль рамки?",answers:["dashed","dotted","solid","double"],correct:0},
+{id:55,topic:"CSS",q:"Яка властивість змінює колір рамки?",answers:["border-color","border-shade","outline-color","border-fill"],correct:0},
+{id:56,topic:"CSS",q:"Який тип позиціонування залишає елемент у потоці без зсуву?",answers:["static","relative","absolute","fixed"],correct:0},
+{id:57,topic:"CSS",q:"Який тип позиціонування дозволяє зміщувати елемент відносно його звичайного положення?",answers:["relative","absolute","static","sticky"],correct:0},
+{id:58,topic:"CSS",q:"Який тип позиціонування CSS відноситься до позиціонування відносно батьківського елементу?",answers:["absolute","relative","fixed","static"],correct:0},
+{id:59,topic:"CSS",q:"Який тип позиціонування фіксує елемент при прокручуванні?",answers:["fixed","sticky","absolute","relative"],correct:0},
+{id:60,topic:"CSS",q:"Яка CSS властивість змінює прозорість елемента?",answers:["opacity","transparency","alpha","visibility"],correct:0},
+// JS 61-90
+{id:61,topic:"JavaScript",q:"Який тег використовується для додавання JavaScript коду в HTML файл?",answers:["<script>","<js>","<code>","<javascript>"],correct:0},
+{id:62,topic:"JavaScript",q:"Куди слід помістити тег <script>, щоб спочатку завантажувався HTML?",answers:["Перед </body>","У <head>","На початку <body>","Після <html>"],correct:0},
+{id:63,topic:"JavaScript",q:"Як підключити зовнішній JavaScript файл?",answers:["<script src='file.js'><\/script>","<script href='file.js'>","<js src='file.js'>","<link rel='script' href='file.js'>"],correct:0},
+{id:64,topic:"JavaScript",q:"Яке ключове слово використовується для оголошення змінної з фіксованим значенням?",answers:["const","let","var","fixed"],correct:0},
+{id:65,topic:"JavaScript",q:"Який тип даних представляє послідовність символів?",answers:["string","char","text","sequence"],correct:0},
+{id:66,topic:"JavaScript",q:"Який тип представляє true або false?",answers:["boolean","bool","bit","logical"],correct:0},
+{id:67,topic:"JavaScript",q:"Який метод додає елемент у кінець масиву?",answers:["push()","append()","add()","insert()"],correct:0},
+{id:68,topic:"JavaScript",q:"Який метод видаляє останній елемент з масиву?",answers:["pop()","remove()","delete()","splice()"],correct:0},
+{id:69,topic:"JavaScript",q:"Що відбувається, коли число додається до рядка?",answers:["Число перетворюється на рядок і відбувається конкатенація","Рядок перетворюється на число","Виникає помилка TypeError","Повертається NaN"],correct:0},
+{id:70,topic:"JavaScript",q:"Який оператор використовується для умовного виконання коду?",answers:["if","switch","while","for"],correct:0},
+{id:71,topic:"JavaScript",q:"Який оператор доцільно використати для багатоваріантних (більше однієї) умов?",answers:["switch","if","while","do-while"],correct:0},
+{id:72,topic:"JavaScript",q:"Який цикл виконує блок коду задану кількість разів?",answers:["for","while","do-while","forEach"],correct:0},
+{id:73,topic:"JavaScript",q:"Який цикл перевіряє умову перед виконанням?",answers:["while","do-while","for-in","for-of"],correct:0},
+{id:74,topic:"JavaScript",q:"Яке призначення функції в JavaScript?",answers:["Повторно використовуваний блок коду","Тип даних","Метод масиву","Умовний оператор"],correct:0},
+{id:75,topic:"JavaScript",q:"Що робить функція setTimeout()?",answers:["Виконує код один раз після заданої затримки","Виконує код повторно через інтервал","Зупиняє виконання скрипту","Видаляє таймер"],correct:0},
+{id:76,topic:"JavaScript",q:"Що робить функція setInterval()?",answers:["Виконує код повторно через заданий інтервал","Виконує код один раз після затримки","Очищає timeout","Зупиняє виконання"],correct:0},
+{id:77,topic:"JavaScript",q:"Яка функція отримує елемент за його ID?",answers:["getElementById()","querySelector()","getElement()","findById()"],correct:0},
+{id:78,topic:"JavaScript",q:"Який метод вибирає елементи за назвою класу?",answers:["getElementsByClassName()","getElementById()","querySelector()","findByClass()"],correct:0},
+{id:79,topic:"JavaScript",q:"Яка подія спрацьовує при зміні значення тегу input?",answers:["change","input","update","modify"],correct:0},
+{id:80,topic:"JavaScript",q:"Яке призначення оператора typeof у JavaScript?",answers:["Повертає тип даних значення як рядок","Перевіряє instanceof","Порівнює два значення","Конвертує типи"],correct:0},
+{id:81,topic:"JavaScript",q:"Що перевіряє оператор '==='?",answers:["Рівність значення і типу (строга)","Тільки рівність значення","Присвоєння","Нерівність"],correct:0},
+{id:82,topic:"JavaScript",q:"Який цикл гарантовано виконується хоча б один раз?",answers:["do-while","while","for","for-of"],correct:0},
+{id:83,topic:"JavaScript",q:"Який синтаксис оголошення функції є правильним?",answers:["function myFunc() {}","def myFunc() {}","func myFunc() {}","method myFunc() {}"],correct:0},
+{id:84,topic:"JavaScript",q:"Як отримати другий елемент з масиву 'let arr = [10, 20, 30]'?",answers:["arr[1]","arr[2]","arr.second()","arr.get(1)"],correct:0},
+{id:85,topic:"JavaScript",q:"Який результат 2 + '2' у JavaScript?",answers:["'22' (рядок)","4 (число)","NaN","TypeError"],correct:0},
+{id:86,topic:"JavaScript",q:"Що означає NaN у JavaScript?",answers:["Not a Number — результат недійсної математичної операції","Not a Name","Null and Nothing","New Array Node"],correct:0},
+{id:87,topic:"JavaScript",q:"Яке ключове слово використовується для зупинки циклу?",answers:["break","stop","exit","end"],correct:0},
+{id:88,topic:"JavaScript",q:"Яке ключове слово пропускає поточну ітерацію циклу?",answers:["continue","skip","next","pass"],correct:0},
+{id:89,topic:"JavaScript",q:"Яке значення за замовчуванням має неініціалізована змінна?",answers:["undefined","null","0","false"],correct:0},
+{id:90,topic:"JavaScript",q:"Який оператор може відтермінувати виконання коду?",answers:["await","defer","delay","async"],correct:0},
+// Node.js 91-120
+{id:91,topic:"Node.js",q:"Яку архітектуру зазвичай використовує Node.js?",answers:["Однопотокову, event-driven, non-blocking I/O","Багатопотокову синхронну","MVC архітектуру","Мікросервісну архітектуру"],correct:0},
+{id:92,topic:"Node.js",q:"Для чого зазвичай використовується Node.js?",answers:["Серверна розробка та API","Мобільні застосунки","Стилізація вебсторінок","Компіляція TypeScript"],correct:0},
+{id:93,topic:"Node.js",q:"Який основний модуль Node.js використовується для роботи з файловою системою?",answers:["fs","file","io","disk"],correct:0},
+{id:94,topic:"Node.js",q:"Який модуль використовується для створення базового HTTP-сервера в Node.js?",answers:["http","server","net","express"],correct:0},
+{id:95,topic:"Node.js",q:"Що таке npm у Node.js?",answers:["Менеджер пакетів Node.js","Node Package Machine","Назва фреймворку","Команда для запуску сервера"],correct:0},
+{id:96,topic:"Node.js",q:"Як встановити локальний пакет npm?",answers:["npm install <package>","npm add <package>","npm get <package>","node install <package>"],correct:0},
+{id:97,topic:"Node.js",q:"Яка команда ініціалізує новий проект npm?",answers:["npm init","npm start","npm create","node init"],correct:0},
+{id:98,topic:"Node.js",q:"Що таке Express.js?",answers:["Мінімалістичний веб-фреймворк для Node.js","База даних для Node.js","Модуль для роботи з файлами","ORM для Node.js"],correct:0},
+{id:99,topic:"Node.js",q:"Яка команда встановлює фреймворк Express.js?",answers:["npm install express","npm add express","node install express","npm get express"],correct:0},
+{id:100,topic:"Node.js",q:"Який метод хостить статичні файли в Express.js?",answers:["express.static()","app.files()","express.public()","app.serve()"],correct:0},
+{id:101,topic:"Node.js",q:"Що таке REST API?",answers:["Архітектурний стиль для вебсервісів з використанням HTTP","Протокол передачі даних","Бібліотека для Node.js","База даних"],correct:0},
+{id:102,topic:"Node.js",q:"Що таке автентифікація в застосунках Node.js?",answers:["Процес перевірки особи користувача","Шифрування даних","Управління базою даних","Авторизація прав доступу"],correct:0},
+{id:103,topic:"Node.js",q:"Що виконує хешування пароля?",answers:["Перетворює пароль на незворотній рядок фіксованої довжини","Шифрує пароль з можливістю розшифрування","Зберігає пароль у базі даних","Перевіряє складність пароля"],correct:0},
+{id:104,topic:"Node.js",q:"Для чого використовується JsonWebToken (JWT)?",answers:["Безпечна передача інформації між сторонами у вигляді JSON","Хешування паролів","Управління сесіями через cookie","Шифрування файлів"],correct:0},
+{id:105,topic:"Node.js",q:"Як надіслати відповідь у форматі JSON в Express.js?",answers:["res.json(data)","res.send(JSON.stringify(data))","res.response(data)","res.output(data)"],correct:0},
+{id:106,topic:"Node.js",q:"Який модуль надає інструменти для роботи зі шляхами до файлів у Node.js?",answers:["path","dir","url","file"],correct:0},
+{id:107,topic:"Node.js",q:"Яка функція читає файл асинхронно у модулі fs?",answers:["fs.readFile()","fs.read()","fs.open()","fs.load()"],correct:0},
+{id:108,topic:"Node.js",q:"Що робить функція 'require' у Node.js?",answers:["Імпортує модулі або файли","Оголошує змінну","Запускає сервер","Підключає базу даних"],correct:0},
+{id:109,topic:"Node.js",q:"Який метод використовується для надсилання файлу в маршруті Express?",answers:["res.sendFile()","res.file()","res.send()","res.download()"],correct:0},
+{id:110,topic:"Node.js",q:"Який метод надсилає помилку 404 в Express.js?",answers:["res.status(404).send('Not Found')","res.error(404)","res.notFound()","res.send(404)"],correct:0},
+{id:111,topic:"Node.js",q:"Як розпарсити JSON у тілі запиту в Express?",answers:["express.json() middleware","JSON.parse(req.body)","req.parseJSON()","bodyParser.text()"],correct:0},
+{id:112,topic:"Node.js",q:"Який метод Express обробляє запити DELETE?",answers:["app.delete()","app.remove()","app.destroy()","app.del()"],correct:0},
+{id:113,topic:"Node.js",q:"Що робить 'res.send()' в Express?",answers:["Надсилає HTTP-відповідь клієнту","Зберігає дані у файл","Перенаправляє запит","Закриває з'єднання"],correct:0},
+{id:114,topic:"Node.js",q:"Як запустити сервер Express на порту 3000?",answers:["app.listen(3000)","app.start(3000)","server.run(3000)","app.port(3000)"],correct:0},
+{id:115,topic:"Node.js",q:"Який метод в Node.js записує дані у файл асинхронно?",answers:["fs.writeFile()","fs.write()","fs.save()","fs.append()"],correct:0},
+{id:116,topic:"Node.js",q:"Що означає 'req.params' в Express?",answers:["Параметри маршруту з URL (напр. :id)","Тіло запиту","Query-рядок","Заголовки запиту"],correct:0},
+{id:117,topic:"Node.js",q:"Яке призначення 'res.redirect()' в Express?",answers:["Перенаправляє клієнта на інший URL","Надсилає JSON-відповідь","Закриває HTTP-з'єднання","Видаляє cookie"],correct:0},
+{id:118,topic:"Node.js",q:"Як захистити маршрути за допомогою middleware в Express?",answers:["Додати функцію-middleware перед обробником маршруту","Використати app.protect()","Додати атрибут secure до маршруту","Використати https-модуль"],correct:0},
+{id:119,topic:"Node.js",q:"Що зазвичай зберігається у файлі .env?",answers:["Змінні середовища (ключі API, паролі, налаштування)","HTML-шаблони","Конфігурація бази даних у JSON","Маршрути Express"],correct:0},
+{id:120,topic:"Node.js",q:"Який метод надсилає JSON-відповідь у Express?",answers:["res.json()","res.send()","res.output()","res.data()"],correct:0},
+// Networking 121-150
+{id:121,topic:"Networking",q:"Що робить клієнт у моделі клієнт-сервер?",answers:["Надсилає запити до сервера та отримує відповіді","Зберігає та обробляє дані","Управляє базами даних","Забезпечує балансування навантаження"],correct:0},
+{id:122,topic:"Networking",q:"Для чого використовується IP-адреса?",answers:["Унікальна ідентифікація пристрою в мережі","Шифрування трафіку","Маршрутизація HTTP-запитів","Зберігання DNS-записів"],correct:0},
+{id:123,topic:"Networking",q:"Яку функцію виконує DNS?",answers:["Перетворює доменні імена на IP-адреси","Шифрує HTTPS-з'єднання","Балансує навантаження між серверами","Керує куками браузера"],correct:0},
+{id:124,topic:"Networking",q:"Що таке порт у мережевих технологіях?",answers:["Числовий ідентифікатор для розрізнення різних сервісів на одному хості","Фізичний роз'єм на мережевій карті","Тип протоколу передачі","IP-адреса сервера"],correct:0},
+{id:125,topic:"Networking",q:"Яке призначення протоколу HTTP?",answers:["Передача гіпертекстових документів між клієнтом і сервером","Шифрування даних у мережі","Надсилання електронної пошти","Управління файлами на сервері"],correct:0},
+{id:126,topic:"Networking",q:"Яка частина HTTP-запиту містить метод і URL?",answers:["Рядок запиту (Request Line)","Тіло запиту","Заголовки","Cookie"],correct:0},
+{id:127,topic:"Networking",q:"Що включено у відповідь HTTP запиту?",answers:["Код статусу, заголовки та тіло відповіді","Лише тіло з даними","Лише код статусу","URL та метод"],correct:0},
+{id:128,topic:"Networking",q:"Який метод HTTP використовується для отримання даних?",answers:["GET","POST","PUT","DELETE"],correct:0},
+{id:129,topic:"Networking",q:"Що означає код статусу HTTP 404?",answers:["Ресурс не знайдено","Внутрішня помилка сервера","Доступ заборонено","Успішний запит"],correct:0},
+{id:130,topic:"Networking",q:"Що таке HTTPS?",answers:["HTTP з шифруванням SSL/TLS","HTTP версії 2.0","HTTP для мобільних пристроїв","Захищений протокол FTP"],correct:0},
+{id:131,topic:"Networking",q:"Чому використовуються асинхронні HTTP-запити?",answers:["Щоб не блокувати інтерфейс під час очікування відповіді сервера","Для підвищення безпеки","Для кешування відповідей","Для зменшення розміру запиту"],correct:0},
+{id:132,topic:"Networking",q:"Що таке GraphQL?",answers:["Мова запитів для API, що дозволяє клієнту запитувати точні дані","Реляційна база даних","Альтернатива HTTP","Фреймворк для Node.js"],correct:0},
+{id:133,topic:"Networking",q:"Для чого використовуються WebSocket?",answers:["Двостороннє з'єднання в реальному часі між клієнтом і сервером","Одностороннє надсилання подій від сервера","Шифрування HTTP-запитів","Балансування навантаження"],correct:0},
+{id:134,topic:"Networking",q:"У чому основна особливість Server-Sent Events (SSE)?",answers:["Сервер надсилає потік подій клієнту в одному напрямку","Клієнт та сервер обмінюються даними в реальному часі","З'єднання постійно двостороннє","Використовується лише для файлів"],correct:0},
+{id:135,topic:"Networking",q:"Що таке автентифікація?",answers:["Перевірка особи користувача (хто ти?)","Перевірка прав доступу (що можеш?)","Шифрування пароля","Управління сесіями"],correct:0},
+{id:136,topic:"Networking",q:"Що таке авторизація?",answers:["Перевірка прав доступу до ресурсу (що дозволено?)","Перевірка особи користувача","Генерація JWT","Хешування пароля"],correct:0},
+{id:137,topic:"Networking",q:"Який HTTP-метод зазвичай використовується для створення нових ресурсів?",answers:["POST","GET","PUT","PATCH"],correct:0},
+{id:138,topic:"Networking",q:"Який код статусу HTTP означає 'Заборонено'?",answers:["403","401","404","500"],correct:0},
+{id:139,topic:"Networking",q:"У GraphQL що визначає структуру повернених даних?",answers:["Клієнт через запит (query)","Сервер через фіксовану схему","База даних","REST-ендпоінт"],correct:0},
+{id:140,topic:"Networking",q:"Що робить GraphQL гнучким порівняно з REST?",answers:["Клієнт отримує лише ті поля, які запитав","Використовує тільки GET-запити","Не потребує сервера","Автоматично кешує відповіді"],correct:0},
+{id:141,topic:"Networking",q:"Який протокол лежить в основі HTTP та HTTPS?",answers:["TCP (Transmission Control Protocol)","UDP","FTP","IP"],correct:0},
+{id:142,topic:"Networking",q:"Який інструмент перетворює доменне ім'я в IP-адресу?",answers:["DNS (Domain Name System)","CDN","Load Balancer","Proxy"],correct:0},
+{id:143,topic:"Networking",q:"Що означає 'stateless' у REST?",answers:["Кожен запит містить усю необхідну інформацію, без стану на сервері","Сервер зберігає сесії","Запити виконуються послідовно","З'єднання постійне"],correct:0},
+{id:144,topic:"Networking",q:"Який HTTP-метод зазвичай використовується для оновлення ресурсів?",answers:["PUT / PATCH","POST","GET","DELETE"],correct:0},
+{id:145,topic:"Networking",q:"Що означає код статусу 500?",answers:["Внутрішня помилка сервера","Ресурс не знайдено","Запит успішний","Доступ заборонено"],correct:0},
+{id:146,topic:"Networking",q:"Що означає код статусу HTTP 201?",answers:["Ресурс успішно створено","Запит успішний (OK)","Перенаправлення","Немає контенту"],correct:0},
+{id:147,topic:"Networking",q:"Яка одна з переваг RESTful API?",answers:["Простота, масштабованість та незалежність від стану","Двостороннє з'єднання в реальному часі","Запит точно обраних полів","Відсутність необхідності у HTTP"],correct:0},
+{id:148,topic:"Networking",q:"Які дані зазвичай зберігаються у JSON Web Token (JWT)?",answers:["Header, Payload (claims) та Signature","Лише пароль користувача","IP-адреса клієнта","Код статусу відповіді"],correct:0},
+{id:149,topic:"Networking",q:"Що забезпечує шифровану передачу даних у HTTPS?",answers:["SSL/TLS протокол","HTTP/2","TCP","RSA без сертифіката"],correct:0},
+{id:150,topic:"Networking",q:"Який тип запитів слід уникати для чутливих дій без HTTPS?",answers:["Будь-які HTTP-запити з чутливими даними","Лише GET-запити","Лише DELETE-запити","Тільки POST без тіла"],correct:0},
+// TypeScript 151-180
+{id:151,topic:"TypeScript",q:"Що таке TypeScript?",answers:["Надмножина JavaScript з суворою статичною типізацією","Окрема мова програмування, не пов'язана з JS","Фреймворк для Angular","Компілятор JavaScript"],correct:0},
+{id:152,topic:"TypeScript",q:"Яка ключова перевага використання TypeScript?",answers:["Виявлення помилок типів на етапі компіляції, до запуску","Автоматична генерація CSS","Вбудована підтримка бази даних","Замінює HTML у шаблонах"],correct:0},
+{id:153,topic:"TypeScript",q:"Як встановити компілятор TypeScript?",answers:["npm install -g typescript","npm install typescript --save","node install typescript","pip install typescript"],correct:0},
+{id:154,topic:"TypeScript",q:"Який тип у TypeScript представляє текстові дані?",answers:["string","text","char","str"],correct:0},
+{id:155,topic:"TypeScript",q:"Який тип у TypeScript містить true або false?",answers:["boolean","bool","bit","logical"],correct:0},
+{id:156,topic:"TypeScript",q:"Яке ключове слово використовується для визначення переліку значень у TypeScript?",answers:["enum","const","type","interface"],correct:0},
+{id:157,topic:"TypeScript",q:"Який тип дозволяє змінній зберігати будь-яке значення у TypeScript?",answers:["any","unknown","object","dynamic"],correct:0},
+{id:158,topic:"TypeScript",q:"Яке ключове слово використовується для змінної, яка не повинна змінюватися у TypeScript?",answers:["const","readonly","final","immutable"],correct:0},
+{id:159,topic:"TypeScript",q:"Який тип описує масив чисел у TypeScript?",answers:["number[] або Array<number>","int[]","nums","array<number>"],correct:0},
+{id:160,topic:"TypeScript",q:"Який тип представляє структуру ключ-значення у TypeScript?",answers:["Record<K,V> або { [key: string]: V }","Map<K,V>","Dict<K,V>","HashMap<K,V>"],correct:0},
+{id:161,topic:"TypeScript",q:"Який символ використовується для оголошення необов'язкового параметра у TypeScript?",answers:["? (знак питання після імені)","* (зірочка)","~ (тильда)","! (знак оклику)"],correct:0},
+{id:162,topic:"TypeScript",q:"Як визначити rest parameters у функції TypeScript?",answers:["...args: type[]","args[]","*args","args: rest"],correct:0},
+{id:163,topic:"TypeScript",q:"Яке ключове слово використовується для оголошення класу у TypeScript?",answers:["class","object","type","interface"],correct:0},
+{id:164,topic:"TypeScript",q:"Який модифікатор доступу робить властивість класу доступною всюди у TypeScript?",answers:["public","private","protected","readonly"],correct:0},
+{id:165,topic:"TypeScript",q:"Який модифікатор доступу обмежує доступ тільки в межах класу у TypeScript?",answers:["private","protected","internal","local"],correct:0},
+{id:166,topic:"TypeScript",q:"Який модифікатор дозволяє доступ у класі та його підкласах у TypeScript?",answers:["protected","private","public","sealed"],correct:0},
+{id:167,topic:"TypeScript",q:"Яке ключове слово використовується для наслідування у класі TypeScript?",answers:["extends","implements","inherits","super"],correct:0},
+{id:168,topic:"TypeScript",q:"Яке ключове слово використовується для визначення методу в класі TypeScript?",answers:["Методи оголошуються без ключового слова, як ім'я(){}","method","func","def"],correct:0},
+{id:169,topic:"TypeScript",q:"Що робить модифікатор 'readonly' у класі TypeScript?",answers:["Дозволяє встановити значення лише при ініціалізації, не змінювати пізніше","Робить властивість публічною","Забороняє наслідування","Шифрує значення"],correct:0},
+{id:170,topic:"TypeScript",q:"Який тип слід використовувати для функцій, які нічого не повертають у TypeScript?",answers:["void","null","undefined","never"],correct:0},
+{id:171,topic:"TypeScript",q:"Яке розширення файлу використовується для файлів TypeScript?",answers:[".ts","  .js","  .tsx (лише для React)","  .type"],correct:0},
+{id:172,topic:"TypeScript",q:"Який інструмент трансформує код TypeScript у JavaScript?",answers:["tsc (TypeScript Compiler)","babel","webpack","eslint"],correct:0},
+{id:173,topic:"TypeScript",q:"Як вказати об'єднаний тип string або number у TypeScript?",answers:["string | number","string & number","(string, number)","union<string, number>"],correct:0},
+{id:174,topic:"TypeScript",q:"Яке ключове слово забороняє створення екземпляра класу напряму у TypeScript?",answers:["abstract","interface","static","sealed"],correct:0},
+{id:175,topic:"TypeScript",q:"Яке ключове слово в інтерфейсі допомагає визначити властивості лише для читання?",answers:["readonly","const","immutable","final"],correct:0},
+{id:176,topic:"TypeScript",q:"Як правильно визначити enum у TypeScript?",answers:["enum Color { Red, Green, Blue }","const enum = {Red, Green}","type Color = enum {...}","interface Color extends enum"],correct:0},
+{id:177,topic:"TypeScript",q:"Який модифікатор доступу є найбільш обмежувальним у TypeScript?",answers:["private","protected","internal","public"],correct:0},
+{id:178,topic:"TypeScript",q:"Яке ключове слово використовується для виклику конструктора батьківського класу?",answers:["super()","parent()","base()","this.parent()"],correct:0},
+{id:179,topic:"TypeScript",q:"Який утилітарний тип робить усі властивості типу необов'язковими?",answers:["Partial<T>","Optional<T>","Maybe<T>","Nullable<T>"],correct:0},
+{id:180,topic:"TypeScript",q:"Яке призначення інтерфейсів у TypeScript?",answers:["Визначають структуру/контракт об'єктів для перевірки типів","Реалізують логіку класу","Замінюють abstract класи","Декорують методи"],correct:0},
+// Angular 181-210
+{id:181,topic:"Angular",q:"Яка основна особливість фреймворку Angular?",answers:["Повноцінний MVC-фреймворк з вбудованими інструментами","Мінімалістична бібліотека для UI","Runtime без компіляції","Використовує лише CSS-модулі"],correct:0},
+{id:182,topic:"Angular",q:"Для якого типу застосунків Angular підходить найкраще?",answers:["Великі enterprise SPA-застосунки","Прості статичні сайти","Мобільні застосунки","Десктопні програми"],correct:0},
+{id:183,topic:"Angular",q:"Яка команда встановлює Angular CLI глобально?",answers:["npm install -g @angular/cli","npm install angular","ng install global","npm add angular-cli"],correct:0},
+{id:184,topic:"Angular",q:"Яка команда створює новий проєкт Angular?",answers:["ng new <project-name>","ng create project","angular new project","npm create angular"],correct:0},
+{id:185,topic:"Angular",q:"Який файл у Angular містить селектор компонента і шаблон?",answers:["component.ts (декоратор @Component)","component.html","component.module.ts","app.config.ts"],correct:0},
+{id:186,topic:"Angular",q:"Що таке компоненти Angular?",answers:["Самодостатні блоки UI з шаблоном, стилями та логікою","Сервіси для HTTP-запитів","Функції маршрутизації","Класи без шаблону"],correct:0},
+{id:187,topic:"Angular",q:"Для чого використовується селектор у Angular?",answers:["Визначає ім'я HTML-тегу для вставки компонента","Вибирає CSS-стилі","Фільтрує дані","Визначає маршрут"],correct:0},
+{id:188,topic:"Angular",q:"Яка CLI-команда створює новий компонент у Angular?",answers:["ng generate component <name>","ng new component","ng add component","angular generate component"],correct:0},
+{id:189,topic:"Angular",q:"Який хук lifecycle виконується при ініціалізації компонента Angular?",answers:["ngOnInit()","ngOnCreate()","ngAfterInit()","componentDidMount()"],correct:0},
+{id:190,topic:"Angular",q:"Що визначає шаблон у Angular?",answers:["HTML-структуру та відображення компонента","Бізнес-логіку компонента","Маршрути застосунку","Стилі компонента"],correct:0},
+{id:191,topic:"Angular",q:"Яка функціональна можливість Angular трансформує дані у відображенні?",answers:["Pipes (конвеєри)","Directives","Services","Interceptors"],correct:0},
+{id:192,topic:"Angular",q:"Що робить вбудований pipe 'date'?",answers:["Форматує об'єкт Date у читабельний рядок","Обчислює різницю між датами","Повертає поточну дату","Конвертує timestamp у UTC"],correct:0},
+{id:193,topic:"Angular",q:"Яка директива умовно додає або видаляє елемент у Angular?",answers:["*ngIf","*ngFor","*ngSwitch","[hidden]"],correct:0},
+{id:194,topic:"Angular",q:"Яка директива використовується для відображення списків у Angular?",answers:["*ngFor","*ngRepeat","*ngList","*ngEach"],correct:0},
+{id:195,topic:"Angular",q:"Яка роль сервісів Angular?",answers:["Спільна логіка та дані між компонентами через DI","Визначення шаблону компонента","Управління маршрутами","Форматування дат"],correct:0},
+{id:196,topic:"Angular",q:"Який сервіс використовується для HTTP-запитів у Angular?",answers:["HttpClient","HttpService","AngularHttp","RequestService"],correct:0},
+{id:197,topic:"Angular",q:"Як визначається маршрутизація у Angular?",answers:["Масив Routes з RouterModule.forRoot()","Атрибут route у компоненті","Конфігурація у package.json","Декоратор @Route"],correct:0},
+{id:198,topic:"Angular",q:"Що робить ngModel у Angular?",answers:["Двостороннє зв'язування даних між полем і змінною","Одностороннє зв'язування","Імпортує модуль","Ініціалізує форму"],correct:0},
+{id:199,topic:"Angular",q:"Для чого використовується @Input() у Angular?",answers:["Передає дані від батьківського компонента до дочірнього","Обробляє введення користувача","Підписується на HTTP-відповідь","Визначає маршрут"],correct:0},
+{id:200,topic:"Angular",q:"Для чого використовується @Output() у Angular?",answers:["Передає події від дочірнього компонента до батьківського","Виводить дані у консоль","Визначає шаблон","Надсилає HTTP-запит"],correct:0},
+{id:201,topic:"Angular",q:"Яке призначення модулів у Angular?",answers:["Групують пов'язані компоненти, директиви та сервіси","Визначають маршрути","Компілюють TypeScript","Замінюють компоненти"],correct:0},
+{id:202,topic:"Angular",q:"Де визначаються селектор, шаблон та стилі компонента Angular?",answers:["У декораторі @Component","У файлі module.ts","У package.json","У angular.json"],correct:0},
+{id:203,topic:"Angular",q:"Який хук lifecycle викликається при зміні @Input() властивостей?",answers:["ngOnChanges()","ngOnInit()","ngDoCheck()","ngAfterViewInit()"],correct:0},
+{id:204,topic:"Angular",q:"Що робить 'export class' у Angular?",answers:["Робить клас доступним для імпорту в інших модулях","Компілює компонент","Реєструє сервіс","Запускає застосунок"],correct:0},
+{id:205,topic:"Angular",q:"Як прив'язати змінну з компонента до шаблону Angular?",answers:["Інтерполяція {{ variableName }}","[variableName]","(variableName)","#variableName"],correct:0},
+{id:206,topic:"Angular",q:"Який синтаксис прив'язує властивість до DOM-атрибута у Angular?",answers:["[property]='expression'","{{property}}","(property)='handler'","#property"],correct:0},
+{id:207,topic:"Angular",q:"Який правильний синтаксис прив'язки подій у Angular?",answers:["(event)='handler()'","[event]='handler()'","{{event}}","@event='handler()'"],correct:0},
+{id:208,topic:"Angular",q:"Яка частина Angular відповідає за навігацію між сторінками?",answers:["Router (маршрутизатор)","HttpClient","Pipes","NgModule"],correct:0},
+{id:209,topic:"Angular",q:"Який pipe у Angular перетворює текст у верхній регістр?",answers:["uppercase","toUpperCase","capitalize","upper"],correct:0},
+{id:210,topic:"Angular",q:"Яка команда Angular CLI запускає застосунок локально?",answers:["ng serve","ng start","ng run","npm start"],correct:0},
+// React 211-240
+{id:211,topic:"React",q:"Яка основна перевага використання React?",answers:["Ефективне оновлення DOM через Virtual DOM","Вбудована маршрутизація","Серверна логіка у браузері","Автоматичне написання CSS"],correct:0},
+{id:212,topic:"React",q:"Для якого типу застосунків зазвичай використовується React?",answers:["Динамічні Single Page Applications (SPA)","Статичні HTML-сторінки","Backend API","Десктопні застосунки"],correct:0},
+{id:213,topic:"React",q:"Яка команда ініціалізує новий застосунок React (Create React App)?",answers:["npx create-react-app <name>","npm new react-app","react create <name>","ng new <name>"],correct:0},
+{id:214,topic:"React",q:"Що таке JSX у React?",answers:["Синтаксичне розширення JS, схоже на HTML, для опису UI","Окрема мова шаблонів","CSS-препроцесор","Тип файлу для стилів"],correct:0},
+{id:215,topic:"React",q:"Як використати JavaScript у JSX-шаблоні React?",answers:["Обгорнути у фігурні дужки { expression }","Використати тег <js>","Атрибут js='expression'","Подвійні лапки {{ expression }}"],correct:0},
+{id:216,topic:"React",q:"Який атрибут замінює 'class' в JSX?",answers:["className","cssClass","htmlClass","styleClass"],correct:0},
+{id:217,topic:"React",q:"Що таке компонент у React?",answers:["Функція або клас, що повертає JSX для відображення UI","Тип даних","CSS-стиль","HTTP-запит"],correct:0},
+{id:218,topic:"React",q:"Що таке props у React?",answers:["Параметри, що передаються від батьківського компонента до дочірнього","Локальний стан компонента","Методи lifecycle","Глобальні змінні"],correct:0},
+{id:219,topic:"React",q:"Для чого використовується state компонента React?",answers:["Збереження локальних даних, зміна яких викликає ре-рендер","Передача даних між компонентами","Визначення CSS-стилів","Конфігурація маршрутів"],correct:0},
+{id:220,topic:"React",q:"Яка функція оновлює state компонента React?",answers:["setState() або setter з useState()","updateState()","refreshState()","changeState()"],correct:0},
+{id:221,topic:"React",q:"Для чого використовується onClick у React?",answers:["Обробляє подію кліку мишею на елемент","Навігує до іншого маршруту","Надсилає HTTP-запит","Оновлює props"],correct:0},
+{id:222,topic:"React",q:"Як React відображає масиви?",answers:["Метод .map() з унікальним key для кожного елемента","Директива *ngFor","Цикл for у JSX","Атрибут loop"],correct:0},
+{id:223,topic:"React",q:"Як застосувати зовнішній CSS у React?",answers:["import './styles.css' у файлі компонента","<link rel='stylesheet' href=''>","@import у JSX","styles={{ url: './styles.css' }}"],correct:0},
+{id:224,topic:"React",q:"Як застосувати inline-стилі в JSX React?",answers:["style={{ property: 'value' }} (об'єкт)","style='property: value'","css='property: value'","className={{ property: 'value' }}"],correct:0},
+{id:225,topic:"React",q:"Що таке методи lifecycle у React?",answers:["Хуки або методи, що виконуються на різних етапах існування компонента","Маршрути застосунку","CSS-анімації компонента","Обробники подій"],correct:0},
+{id:226,topic:"React",q:"Який хук виконується після першого рендеру компонента React?",answers:["useEffect(() => {}, [])","useLayoutEffect","componentDidMount","useMemo"],correct:0},
+{id:227,topic:"React",q:"Який хук використовується для управління станом у React?",answers:["useState","useEffect","useContext","useRef"],correct:0},
+{id:228,topic:"React",q:"Що дозволяє робити React Native?",answers:["Розробляти нативні мобільні застосунки за допомогою React","Рендерити React на сервері","Компілювати React у десктопний застосунок","Стилізувати HTML за допомогою JS"],correct:0},
+{id:229,topic:"React",q:"Яка ключова перевага React Native?",answers:["Один кодобаза для iOS та Android","Вища продуктивність ніж нативний код","Автоматична генерація UI","Вбудована база даних"],correct:0},
+{id:230,topic:"React",q:"Які мобільні платформи підтримує React Native?",answers:["iOS та Android","Лише Android","Лише iOS","iOS, Android та Windows"],correct:0},
+{id:231,topic:"React",q:"Що є базовими компонентами React Native?",answers:["View, Text, Image, TextInput, ScrollView","div, span, p, img","Box, Label, Picture","Container, Label, Input"],correct:0},
+{id:232,topic:"React",q:"Який компонент відображає контент зі прокруткою у React Native?",answers:["ScrollView","ListView","ScrollContainer","FlatList"],correct:0},
+{id:233,topic:"React",q:"Який основний контейнер для компонування у React Native?",answers:["View","Container","Box","Frame"],correct:0},
+{id:234,topic:"React",q:"Який компонент використовується для відображення тексту у React Native?",answers:["Text","Label","Span","P"],correct:0},
+{id:235,topic:"React",q:"Яка властивість допомагає React унікально ідентифікувати елементи у списках?",answers:["key","id","index","name"],correct:0},
+{id:236,topic:"React",q:"Який компонент використовується для кнопок у React Native?",answers:["TouchableOpacity або Button","ButtonView","Pressable (альт.)","ClickableView"],correct:0},
+{id:237,topic:"React",q:"Що таке Virtual DOM у React?",answers:["Легка копія DOM у пам'яті для оптимізації оновлень","Окремий браузер","Тип компонента","CSS-движок"],correct:0},
+{id:238,topic:"React",q:"Як React ефективно оновлює реальний DOM?",answers:["Порівнює Virtual DOM з попереднім (diffing) та оновлює лише змінені вузли","Перебудовує весь DOM при будь-якій зміні","Використовує requestAnimationFrame","Кешує DOM-вузли в localStorage"],correct:0},
+{id:239,topic:"React",q:"Яка основна функція ReactDOM.render?",answers:["Рендерить React-компонент у реальний DOM-вузол","Компілює JSX","Ініціалізує стан","Підключає маршрутизатор"],correct:0},
+{id:240,topic:"React",q:"Для чого використовується властивість key у списках React?",answers:["Допомагає React відстежувати, які елементи змінилися для оптимізації","Задає CSS-клас елементу","Визначає порядок сортування","Встановлює унікальний ID у DOM"],correct:0},
+// Architecture 241-270
+{id:241,topic:"Архітектура",q:"На що спрямований основний фокус програмної архітектури?",answers:["Глобальна структура системи, компоненти та їх взаємодія","Детальна реалізація окремих функцій","CSS-організація","Вибір бібліотек"],correct:0},
+{id:242,topic:"Архітектура",q:"На що спрямований основний фокус проєктування ПЗ?",answers:["Детальний дизайн окремих модулів та класів","Глобальна структура системи","Написання тестів","Розгортання на сервері"],correct:0},
+{id:243,topic:"Архітектура",q:"Яка бібліотека використовується для керування станом у React?",answers:["Redux (або Zustand, Recoil)","MobX як єдиний варіант","Context API лише","NgRx"],correct:0},
+{id:244,topic:"Архітектура",q:"Яка архітектура рендерить сторінки в браузері?",answers:["CSR (Client-Side Rendering)","SSR (Server-Side Rendering)","SSG (Static Site Generation)","ISR (Incremental Static Regeneration)"],correct:0},
+{id:245,topic:"Архітектура",q:"Яка стратегія рендерингу генерує статичний HTML під час збірки?",answers:["SSG (Static Site Generation)","CSR","SSR","ISR"],correct:0},
+{id:246,topic:"Архітектура",q:"Яка архітектура виконує всю логіку в одному застосунку?",answers:["Monolithic (монолітна)","Мікросервісна","Serverless","Event-driven"],correct:0},
+{id:247,topic:"Архітектура",q:"Який тип архітектури розділяє застосунок на невеликі незалежні сервіси?",answers:["Мікросервісна (Microservices)","Монолітна","SOA","P2P"],correct:0},
+{id:248,topic:"Архітектура",q:"Яка модель архітектури запускає функції у відповідь на події в хмарі?",answers:["Serverless / FaaS (Function as a Service)","Мікросервісна","SaaS","IaaS"],correct:0},
+{id:249,topic:"Архітектура",q:"Що розділяє багаторівнева архітектура (N-tier)?",answers:["Presentation, Business Logic та Data Access шари","Frontend та Backend","Клієнт та сервер","Тести та prod-код"],correct:0},
+{id:250,topic:"Архітектура",q:"Яка архітектура дозволяє кожному вузлу бути клієнтом і сервером одночасно?",answers:["P2P (Peer-to-Peer)","Client-Server","Monolithic","Serverless"],correct:0},
+{id:251,topic:"Архітектура",q:"Що розділяє CQRS?",answers:["Команди (запис даних) та запити (читання даних)","Frontend та Backend","Синхронний та асинхронний код","Тести та продакшн"],correct:0},
+{id:252,topic:"Архітектура",q:"Яка система використовується для асинхронної обробки повідомлень?",answers:["Message Queue (Kafka, RabbitMQ)","REST API","WebSocket","GraphQL"],correct:0},
+{id:253,topic:"Архітектура",q:"Яке призначення кешування в програмних системах?",answers:["Зменшити затримку та навантаження на сервер, зберігаючи часто запитувані дані","Зашифрувати дані","Дублювати базу даних","Замінити CDN"],correct:0},
+{id:254,topic:"Архітектура",q:"Яке розгортання використовує два live-середовища для безпечного перемикання?",answers:["Blue-Green Deployment","Canary Deployment","Rolling Deployment","A/B Testing"],correct:0},
+{id:255,topic:"Архітектура",q:"Яка стратегія розгортання тестує нові функції на невеликій групі користувачів?",answers:["Canary Deployment","Blue-Green","Rolling Update","Shadow Deployment"],correct:0},
+{id:256,topic:"Архітектура",q:"Що надає модель IaaS?",answers:["Віртуальні машини, мережа, сховище — базова інфраструктура","Готові платформи для розробки","Готове ПЗ через хмару","Функції без сервера"],correct:0},
+{id:257,topic:"Архітектура",q:"Яка модель надає повністю готове ПЗ через хмару?",answers:["SaaS (Software as a Service)","PaaS","IaaS","FaaS"],correct:0},
+{id:258,topic:"Архітектура",q:"Який термін описує підтримку відгуку застосунку під високим навантаженням?",answers:["Scalability (масштабованість)","Availability","Reliability","Throughput"],correct:0},
+{id:259,topic:"Архітектура",q:"Яка модель дозволяє клієнту спілкуватися з центральним сервером?",answers:["Client-Server","P2P","Monolithic","Event-driven"],correct:0},
+{id:260,topic:"Архітектура",q:"Який термін позначає ПЗ на локальних фізичних серверах?",answers:["On-Premises","Cloud","Hybrid","SaaS"],correct:0},
+{id:261,topic:"Архітектура",q:"Яка ключова характеристика хмарних обчислень?",answers:["Ресурси за вимогою, без фізичного обладнання, оплата за використання","Лише приватні сервери","Відсутність масштабування","Потребує on-site техніків"],correct:0},
+{id:262,topic:"Архітектура",q:"Який тип архітектури виконує функції у відповідь на події в хмарі?",answers:["Serverless","Monolithic","N-tier","CQRS"],correct:0},
+{id:263,topic:"Архітектура",q:"Який підхід генерує HTML на сервері для кожного запиту?",answers:["SSR (Server-Side Rendering)","CSR","SSG","ISR"],correct:0},
+{id:264,topic:"Архітектура",q:"Яка основна перевага мікросервісів?",answers:["Незалежне масштабування та розгортання кожного сервісу","Простота розробки","Менше коду","Відсутність мережевих запитів"],correct:0},
+{id:265,topic:"Архітектура",q:"Яка основна перевага кешування даних у вебзастосунках?",answers:["Зменшення часу відповіді та навантаження на базу даних","Збільшення безпеки","Зменшення розміру коду","Спрощення авторизації"],correct:0},
+{id:266,topic:"Архітектура",q:"Яка стратегія дозволяє тестувати нові функції на реальному трафіку?",answers:["Canary Release","Blue-Green","A/B Testing (схожий)","Shadow Mode"],correct:0},
+{id:267,topic:"Архітектура",q:"Який метод рендерингу покращує швидкість через попереднє завантаження HTML-файлів?",answers:["SSG (Static Site Generation)","CSR","SSR","ISR"],correct:0},
+{id:268,topic:"Архітектура",q:"У чому головна різниця між IaaS та PaaS?",answers:["IaaS — інфраструктура (VM), PaaS — платформа для розробки (без управління ОС)","IaaS для фронтенду, PaaS для бекенду","IaaS безкоштовний","PaaS не підтримує бази даних"],correct:0},
+{id:269,topic:"Архітектура",q:"Що вимагає традиційний хостинг, але абстрагує хмарний хостинг?",answers:["Управління фізичними серверами та інфраструктурою","Написання коду","Розробку frontend","Налаштування DNS"],correct:0},
+{id:270,topic:"Архітектура",q:"Що передбачає клієнт-серверна модель щодо ролей?",answers:["Клієнт запитує ресурси, сервер їх надає — чіткий поділ ролей","Обидва є серверами","Клієнт зберігає дані","Сервер ініціює з'єднання"],correct:0},
+// Libraries 271-300
+{id:271,topic:"Бібліотеки",q:"Яке призначення CSS-фреймворку?",answers:["Готові стилі та компоненти для швидкої верстки","Управління станом застосунку","Серверна маршрутизація","Компіляція TypeScript"],correct:0},
+{id:272,topic:"Бібліотеки",q:"Для чого використовується бібліотека Chart.js?",answers:["Створення 2D-діаграм і графіків через canvas","3D-візуалізація","Робота з картами","Управління датами"],correct:0},
+{id:273,topic:"Бібліотеки",q:"Яка бібліотека JS використовується для складної візуалізації даних?",answers:["D3.js","Chart.js","Three.js","Recharts"],correct:0},
+{id:274,topic:"Бібліотеки",q:"Яка бібліотека JS допомагає керувати часом і датами?",answers:["Moment.js або Day.js","Date.js","TimeLib","Chrono.js"],correct:0},
+{id:275,topic:"Бібліотеки",q:"Яке призначення JavaScript бібліотеки FullCalendar?",answers:["Відображення та управління подіями у календарі","Робота з часовими зонами","Анімація інтерфейсу","Створення діаграм"],correct:0},
+{id:276,topic:"Бібліотеки",q:"Яка JS бібліотека для інтерактивних 3D-сцен у браузері?",answers:["Three.js","D3.js","Babylon.js (схожа)","Chart.js"],correct:0},
+{id:277,topic:"Бібліотеки",q:"Яка JS бібліотека для інтеграції карт у вебзастосунки?",answers:["Leaflet.js","Mapbox (сервіс)","Google Maps API","OpenLayers"],correct:0},
+{id:278,topic:"Бібліотеки",q:"Який сервіс пропонує JavaScript API для інтерактивних онлайн-карт?",answers:["Google Maps Platform","Leaflet.js","OpenStreetMap","Mapbox"],correct:0},
+{id:279,topic:"Бібліотеки",q:"Для чого використовується React Native?",answers:["Нативні мобільні застосунки з React","Серверний рендеринг","Десктопні застосунки","Стилізація компонентів"],correct:0},
+{id:280,topic:"Бібліотеки",q:"Які платформи підтримує React Native?",answers:["iOS та Android","Лише Android","Лише iOS","Усі платформи включно з десктопом"],correct:0},
+{id:281,topic:"Бібліотеки",q:"Для чого в основному використовується Electron?",answers:["Розробка кросплатформних десктопних застосунків","Мобільна розробка","Серверна розробка","CSS-препроцесор"],correct:0},
+{id:282,topic:"Бібліотеки",q:"Який стек використовує Electron?",answers:["HTML, CSS та JavaScript (Node.js + Chromium)","React та Node.js","TypeScript та Angular","Vue та Vite"],correct:0},
+{id:283,topic:"Бібліотеки",q:"Що з наведеного є компонентним UI-фреймворком?",answers:["Bootstrap або Material UI","Chart.js","Moment.js","Leaflet.js"],correct:0},
+{id:284,topic:"Бібліотеки",q:"Який інструмент найкраще підходить для візуалізації подій у календарі?",answers:["FullCalendar","Chart.js","D3.js","Moment.js"],correct:0},
+{id:285,topic:"Бібліотеки",q:"Що допомагає у відображенні GPS-карт у реальному часі?",answers:["Leaflet.js з WebSocket або Google Maps API","Three.js","D3.js","FullCalendar"],correct:0},
+{id:286,topic:"Бібліотеки",q:"Яку JS бібліотеку використати для інтерактивної гістограми?",answers:["Chart.js або D3.js","Three.js","Moment.js","Leaflet.js"],correct:0},
+{id:287,topic:"Бібліотеки",q:"Яка JS бібліотека для управління часовими зонами?",answers:["Moment.js (moment-timezone) або Luxon","Day.js без плагінів","Date-fns","TimeZone.js"],correct:0},
+{id:288,topic:"Бібліотеки",q:"Що можна створити з React Native?",answers:["Нативні iOS та Android мобільні застосунки","Вебсайти","Десктопні програми","Серверні API"],correct:0},
+{id:289,topic:"Бібліотеки",q:"Який JS-інструмент для десктопних застосунків?",answers:["Electron","React Native","Three.js","D3.js"],correct:0},
+{id:290,topic:"Бібліотеки",q:"Яка JS бібліотека спеціалізується на 2D-діаграмах через canvas?",answers:["Chart.js","D3.js","Three.js","Highcharts"],correct:0},
+{id:291,topic:"Бібліотеки",q:"Для чого використовується Moment.js?",answers:["Парсинг, валідація та форматування дат/часу","3D-візуалізація","Управління картами","Анімація елементів"],correct:0},
+{id:292,topic:"Бібліотеки",q:"Для чого використовується Leaflet.js?",answers:["Інтерактивні вебкарти (легковажна альтернатива Google Maps)","3D-сцени","Графіки та діаграми","Управління датами"],correct:0},
+{id:293,topic:"Бібліотеки",q:"Яка JS бібліотека інтегрується з WebGL для 3D-візуалізації?",answers:["Three.js","D3.js","Chart.js","Babylon.js"],correct:0},
+{id:294,topic:"Бібліотеки",q:"Яка ключова перевага FullCalendar?",answers:["Готовий UI-компонент з drag-and-drop та підтримкою подій","Побудова графіків","Управління даними","3D-анімація"],correct:0},
+{id:295,topic:"Бібліотеки",q:"Яка платформа створює нативні мобільні застосунки з синтаксисом React?",answers:["React Native","Electron","Ionic","Flutter"],correct:0},
+{id:296,topic:"Бібліотеки",q:"Який інструмент для кросплатформних десктопних застосунків?",answers:["Electron","React Native","Cordova","NativeScript"],correct:0},
+{id:297,topic:"Бібліотеки",q:"Яка JS бібліотека для даних про погоду на карті в реальному часі?",answers:["Leaflet.js + weather API (напр. OpenWeatherMap)","D3.js","Three.js","FullCalendar"],correct:0},
+{id:298,topic:"Бібліотеки",q:"Яку JS бібліотеку використати для лінійної діаграми?",answers:["Chart.js (line chart) або D3.js","Three.js","Moment.js","Leaflet.js"],correct:0},
+{id:299,topic:"Бібліотеки",q:"Яка JS бібліотека для пошуку місць на карті?",answers:["Google Maps Places API або Leaflet + Nominatim","D3.js","Chart.js","Three.js"],correct:0},
+{id:300,topic:"Бібліотеки",q:"Яка комбінація для десктопного застосунку з UI та локальним сховищем?",answers:["Electron + React/Vue + localStorage/IndexedDB","React Native + Redux","Three.js + Node.js","Chart.js + Express"],correct:0}
+];
+
+// Shuffle answers for each question
+function shuffleAnswers(q) {
+  const opts = q.answers.map((a,i)=>({text:a,isCorrect:i===q.correct}));
+  for(let i=opts.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[opts[i],opts[j]]=[opts[j],opts[i]];}
+  const correctIdx=opts.findIndex(o=>o.isCorrect);
+  return {q,opts:opts.map(o=>o.text),correctIdx};
+}
+
+const TOPICS=[...new Set(QUESTIONS.map(q=>q.topic))];
+const TOPIC_RANGES={
+  "HTML":[1,30],"CSS":[31,60],"JavaScript":[61,90],"Node.js":[91,120],
+  "Networking":[121,150],"TypeScript":[151,180],"Angular":[181,210],
+  "React":[211,240],"Архітектура":[241,270],"Бібліотеки":[271,300]
+};
+
+// Stats storage
+let stats = JSON.parse(localStorage.getItem('examStats')||'{}');
+// stats[topicName] = { correct: N, wrong: N }
+function getTopicStats(topic){return stats[topic]||{correct:0,wrong:0};}
+function recordAnswer(topic,isCorrect){
+  if(!stats[topic])stats[topic]={correct:0,wrong:0};
+  if(isCorrect)stats[topic].correct++;else stats[topic].wrong++;
+  localStorage.setItem('examStats',JSON.stringify(stats));
+}
+
+// Quiz state
+let quiz={questions:[],shuffled:[],current:0,score:0,answers:[],topic:null,sessionStats:{}};
+
+function startRandom(){
+  const pool=[...QUESTIONS].sort(()=>Math.random()-.5).slice(0,40);
+  startQuiz(pool,'Рандомний тест');
+}
+function startTopic(topic){
+  // Додано .sort(() => Math.random() - 0.5) для перемішування питань
+  const pool = QUESTIONS.filter(q => q.topic === topic).sort(() => Math.random() - 0.5);
+  startQuiz(pool, topic);
+}
+function startQuiz(pool,label){
+  quiz.questions=pool;
+  quiz.shuffled=pool.map(shuffleAnswers);
+  quiz.current=0;quiz.score=0;quiz.answers=[];
+  quiz.topic=label;quiz.sessionStats={};
+  showScreen('quiz');
+  renderQuestion();
+}
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(name+'-screen').classList.add('active');
+  if(name==='home')renderHome();
+}
+function goHome(){showScreen('home');}
+function confirmQuit(){if(confirm('Вийти з тесту?'))goHome();}
+function showTopicPicker(){
+  const el=document.getElementById('topic-picker');
+  el.style.display=el.style.display==='none'?'block':'none';
+  renderTopics();
+}
+
+function renderTopics(){
+  const grid=document.getElementById('topics-grid');
+  grid.innerHTML=TOPICS.map(t=>{
+    const s=getTopicStats(t);const total=s.correct+s.wrong;
+    const pct=total?Math.round(s.correct/total*100):0;
+    const fillClass=total===0?'':pct>=70?'good':'has-errors';
+    return `<div class="topic-btn" onclick="startTopic('${t}')">
+      <div class="t-name">${t}</div>
+      <div class="t-count">30 питань${total?` · ${pct}% правильно`:''}</div>
+      <div class="t-bar"><div class="t-fill ${fillClass}" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderHome(){
+  let totalAnswered=0,totalCorrect=0,totalWrong=0;
+  TOPICS.forEach(t=>{const s=getTopicStats(t);totalAnswered+=s.correct+s.wrong;totalCorrect+=s.correct;totalWrong+=s.wrong;});
+  document.getElementById('stat-total').textContent=totalAnswered;
+  document.getElementById('stat-correct').textContent=totalAnswered?Math.round(totalCorrect/totalAnswered*100)+'%':'0%';
+  document.getElementById('stat-errors').textContent=totalWrong;
+  
+  // streak
+  const streak=parseInt(localStorage.getItem('streak')||'0');
+  document.getElementById('stat-streak').textContent=streak;
+
+  // topic analytics
+  const ana=document.getElementById('topic-analytics');
+  const sorted=[...TOPICS].sort((a,b)=>{
+    const sa=getTopicStats(a),sb=getTopicStats(b);
+    const pa=(sa.correct+sa.wrong)?sa.wrong/(sa.correct+sa.wrong):0;
+    const pb=(sb.correct+sb.wrong)?sb.wrong/(sb.correct+sb.wrong):0;
+    return pb-pa;
+  });
+  ana.innerHTML=sorted.map(t=>{
+    const s=getTopicStats(t);const total=s.correct+s.wrong;
+    if(!total)return `<div class="ta-row"><span class="ta-name">${t}</span><span class="ta-stats" style="color:var(--muted)">не вивчалось</span></div>`;
+    const pct=Math.round(s.correct/total*100);
+    const color=pct>=80?'var(--correct)':pct>=50?'var(--warn)':'var(--wrong)';
+    const label=pct<50?'<span class="needs-work">⚠ вчити</span>':'';
+    return `<div class="ta-row">
+      <span class="ta-name">${t}</span>
+      <div class="ta-bar-wrap"><div class="ta-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <span class="ta-stats">${pct}% (${s.correct}/${total})</span>
+      ${label}
+    </div>`;
+  }).join('');
+  renderTopics();
+}
+
+function escapeHTML(str) {
+  return String(str).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function renderQuestion(){
+  const total=quiz.shuffled.length;
+  const idx=quiz.current;
+  const {q,opts,correctIdx}=quiz.shuffled[idx];
+  
+  document.getElementById('q-progress-text').textContent=`${idx+1} / ${total}`;
+  document.getElementById('q-score-text').textContent=`✓ ${quiz.score}`;
+  document.getElementById('q-progress-fill').style.width=`${(idx/total)*100}%`;
+  document.getElementById('q-topic-tag').textContent=q.topic;
+
+  const letters=['A','B','C','D'];
+  const html=`
+    <div class="question-card">
+      <div class="q-text">${idx+1}. ${escapeHTML(q.q)}</div>
+      <div class="answers" id="answers">
+        ${opts.map((o,i)=>`<button class="answer-btn" onclick="selectAnswer(${i},${correctIdx})" data-idx="${i}">
+          <span class="ans-letter">${letters[i]}</span><span>${escapeHTML(o)}</span>
+        </button>`).join('')}
+      </div>
+      <div class="feedback-bar" id="feedback"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn primary" id="next-btn" onclick="nextQuestion()" style="display:none">Далі →</button>
+    </div>`;
+  document.getElementById('quiz-content').innerHTML=html;
+}
+
+function selectAnswer(chosen,correct){
+  const btns=document.querySelectorAll('.answer-btn');
+  btns.forEach(b=>b.disabled=true);
+  const isCorrect=chosen===correct;
+  const topic=quiz.shuffled[quiz.current].q.topic;
+  
+  btns[chosen].classList.add(isCorrect?'correct':'wrong');
+  if(!isCorrect)btns[correct].classList.add('correct');
+  
+  const fb=document.getElementById('feedback');
+  fb.style.display='block';
+  fb.className='feedback-bar '+(isCorrect?'correct':'wrong');
+  fb.textContent=isCorrect?'✓ Правильно!':'✗ Неправильно. Правильна відповідь виділена зеленим.';
+  
+  if(isCorrect)quiz.score++;
+  quiz.answers.push({qIdx:quiz.current,chosen,correct,isCorrect,topic});
+  recordAnswer(topic,isCorrect);
+  
+  // streak
+  let streak=parseInt(localStorage.getItem('streak')||'0');
+  if(isCorrect){streak++;localStorage.setItem('streak',streak);}
+  else{localStorage.setItem('streak','0');}
+
+  document.getElementById('next-btn').style.display='inline-block';
+}
+
+function nextQuestion(){
+  quiz.current++;
+  if(quiz.current>=quiz.shuffled.length){showResults();return;}
+  renderQuestion();
+}
+
+function showResults(){
+  showScreen('results');
+  const total=quiz.shuffled.length;
+  const pct=Math.round(quiz.score/total*100);
+  document.getElementById('result-score').textContent=pct+'%';
+  document.getElementById('result-score').style.color=pct>=80?'var(--correct)':pct>=50?'var(--warn)':'var(--wrong)';
+  const msgs=['😅 Треба ще вчити!','💪 Непогано, але є куди рости!','🔥 Відмінний результат!','⚡ Ти крутий!'];
+  document.getElementById('result-msg').textContent=pct<50?msgs[0]:pct<70?msgs[1]:pct<90?msgs[2]:msgs[3];
+  document.getElementById('res-correct').textContent=quiz.score;
+  document.getElementById('res-wrong').textContent=total-quiz.score;
+  document.getElementById('res-pct').textContent=pct+'%';
+
+  // by topic
+  const byTopic={};
+  quiz.answers.forEach(a=>{
+    if(!byTopic[a.topic])byTopic[a.topic]={c:0,w:0};
+    if(a.isCorrect)byTopic[a.topic].c++;else byTopic[a.topic].w++;
+  });
+  const rbt=document.getElementById('results-by-topic');
+  rbt.innerHTML=Object.entries(byTopic).sort((a,b)=>{
+    const pa=a[1].c/(a[1].c+a[1].w),pb=b[1].c/(b[1].c+b[1].w);return pa-pb;
+  }).map(([t,s])=>{
+    const p=Math.round(s.c/(s.c+s.w)*100);
+    const color=p>=80?'var(--correct)':p>=50?'var(--warn)':'var(--wrong)';
+    return `<div class="tr-item">
+      <span class="tr-name">${t}</span>
+      <span class="tr-score" style="color:${color}">${s.c}/${s.c+s.w} (${p}%)</span>
+      ${p<60?'<span class="needs-work">⚠ вчити</span>':''}
+    </div>`;
+  }).join('');
+}
+
+function retryWrong(){
+  const wrong=quiz.answers.filter(a=>!a.isCorrect).map(a=>quiz.questions[a.qIdx]);
+  if(!wrong.length){alert('Немає помилок! 🎉');return;}
+  startQuiz(wrong,'Повтор помилок');
+}
+
+// Init
+renderHome();
+</script>
+</body>
+</html>
